@@ -2,6 +2,10 @@ package org.example;
 
 import java.util.Objects;
 
+/**
+ * class for test MKArrayList
+ */
+
 public class Person {
     String name;
     int age;
