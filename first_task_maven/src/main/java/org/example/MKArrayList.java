@@ -1,13 +1,25 @@
 package org.example;
 
+import java.util.Arrays;
+
 /**
  * My personal ArrayList by Maksim Kopylov for Aston
  * @param <T>
  */
 public class MKArrayList<T> {
-    private int capacity = 1;
+    private int capacity = 4;
     private T[] array = (T[])new Object[capacity];
     private int size=0;
+
+    public MKArrayList(int capacity) {
+        if(capacity<0) {
+            throw new IllegalArgumentException("capacity is wrong: "+ capacity);
+        }
+        this.capacity = capacity;
+    }
+
+    public MKArrayList() {
+    }
 
     public int getSize() {
         return size;
@@ -131,6 +143,11 @@ public class MKArrayList<T> {
         if(size==array.length-1){
             growArray();
         }
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(Arrays.copyOfRange(array, 0, size));
     }
 
 }

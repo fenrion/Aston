@@ -7,6 +7,11 @@ import java.util.Comparator;
  * @param <T>
  */
 public class QuickSort<T>{
+    /**
+     * quicksort using comparator
+     * @param comparator
+     * @param array
+     */
     public void sort(Comparator<T> comparator, MKArrayList<T> array){
         quickSort(0,array.getSize()-1,comparator,array);
     }
@@ -36,6 +41,43 @@ public class QuickSort<T>{
         array.set(temp,high);
 
         return i+1;
+    }
 
+    /**
+     * quicksort using comparable
+     * @param array
+     * @param <T>
+     */
+    public <T extends Comparable<T>> void sort(MKArrayList<T>array) {
+        doSort(array, 0, array.getSize() - 1);
+    }
+
+    private <T extends Comparable<T>> void doSort(MKArrayList<T> array, int low, int high) {
+        if (low < high) {
+            int pivot = partition(array, low, high);
+            doSort(array, low, pivot - 1);
+            doSort(array, pivot, high);
+        }
+    }
+
+    private <T extends Comparable<T>> int partition(MKArrayList<T> array, int low, int high) {
+        int mid = (low + high) / 2;
+        T pivot = array.get(mid);
+        while (high >= low) {
+            while (array.get(low).compareTo(pivot) < 0) {
+                low++;
+            }
+            while (pivot.compareTo(array.get(high)) < 0) {
+                high--;
+            }
+            if (high >= low) {
+                T swap = array.get(low);
+                array.set(array.get(high),low);
+                array.set(swap,high);
+                ++low;
+                --high;
+            }
+        }
+        return low;
     }
 }

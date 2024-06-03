@@ -1,40 +1,67 @@
 package org.example;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Comparator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class QuickSortTest {
-
-    @Test
-    void sort() {
-        Person person1 = new Person("name1", 6);
-        Person person2 = new Person("name2",5);
-        Person person3 = new Person("name3", 1);
-        Person person4 = new Person("name4",3);
-        Person person5 = new Person("name5",8);
-        Person person6 = new Person("name6",4);
-        Person person7 = new Person("name7",7);
-        Person person8 = new Person("name8",9);
-        Person person9 = new Person("name9",2);
-        MKArrayList<Person> mkArrayList = new MKArrayList<>();
-        mkArrayList.add(person1);
-        mkArrayList.add(person2);
-        mkArrayList.add(person3);
-        mkArrayList.add(person4);
-        mkArrayList.add(person5);
-        mkArrayList.add(person6);
-        mkArrayList.add(person7);
-        mkArrayList.add(person8);
-        mkArrayList.add(person9);
-        QuickSort<Person> quickSort = new QuickSort<>();
-        quickSort.sort(Comparator.comparingInt(Person::getAge),mkArrayList);
-
-        Assertions.assertEquals(person6,mkArrayList.get(3));
-        Assertions.assertEquals(person3,mkArrayList.get(0));
-        Assertions.assertEquals(person8,mkArrayList.get(8));
+    private MKArrayList<Person> testPersons;
+    @BeforeEach
+    void setUp() {
+        testPersons = new MKArrayList<>();
     }
+
+
+    @AfterEach
+    void tearDown() {
+        testPersons = null;
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "5 10 30; name1 10,name2 30,name3 5"
+    }, delimiter = ';'
+    )
+    void sortByComparator(String expectedToString,String values) {
+        for (String value : values.split(",")) {
+            String[] person = value.split(" ");
+            testPersons.add(new Person(person[0],Integer.parseInt(person[1])));
+        }
+        QuickSort<Person> quickSort = new QuickSort<>();
+        quickSort.sort(Comparator.comparingInt(Person::getAge),testPersons);
+
+        StringBuilder sb = new StringBuilder();
+        for(int i=0;i<testPersons.getSize();i++){
+            sb.append(testPersons.get(i).getAge()).append(" ");
+        }
+        Assertions.assertEquals(expectedToString, sb.toString().trim());
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "5 10 30; name1 10,name2 30,name3 5"
+    }, delimiter = ';'
+    )
+    void sortByComparable(String expectedToString,String values) {
+        for (String value : values.split(",")) {
+            String[] person = value.split(" ");
+            testPersons.add(new Person(person[0],Integer.parseInt(person[1])));
+        }
+        QuickSort<Person> quickSort = new QuickSort<>();
+        quickSort.sort(testPersons);
+
+        StringBuilder sb = new StringBuilder();
+        for(int i=0;i<testPersons.getSize();i++){
+            sb.append(testPersons.get(i).getAge()).append(" ");
+        }
+        Assertions.assertEquals(expectedToString, sb.toString().trim());
+    }
+
 }

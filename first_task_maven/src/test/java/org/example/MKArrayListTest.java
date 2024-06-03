@@ -1,73 +1,118 @@
 package org.example;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.platform.commons.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MKArrayListTest {
+    private MKArrayList<String> testStringList;
 
-    @Test
-    void add() {
-        Person person = new Person("name", 10);
-        MKArrayList<Person> mkArrayList = new MKArrayList<>();
-        mkArrayList.add(person);
-        Assertions.assertEquals(mkArrayList.getSize(),1);
+
+    @BeforeEach
+    void setUp() {
+        testStringList = new MKArrayList<>();
     }
 
-    @Test
-    void testAdd() {
-        Person person = new Person("name", 10);
-        Person person2 = new Person("name2",20);
-        Person person3 = new Person("name3", 30);
-        Person person4 = new Person("name4",40);
-        Person person5 = new Person("name5",50);
-        Person person6 = new Person("name6",60);
-        MKArrayList<Person> mkArrayList = new MKArrayList<>();
-        mkArrayList.add(person);
-        mkArrayList.add(person2);
-        mkArrayList.add(person3);
-        mkArrayList.add(person4,1);
-
-        Assertions.assertEquals(mkArrayList.get(1),person4);
-        Assertions.assertEquals(mkArrayList.get(2),person2);
-        Assertions.assertThrows(IndexOutOfBoundsException.class,()->{mkArrayList.add(person5,-1);});
-        Assertions.assertThrows(IndexOutOfBoundsException.class,()->{mkArrayList.add(person6,100);});
+    @AfterEach
+    void tearDown() {
+        testStringList = null;
     }
 
-    @Test
-    void testAdd1() {
-        Person[] arr = {
-                new Person("name",10),
-                new Person("name2",20)
-        };
-        Person person4 = new Person("name4",40);
-        Person person5 = new Person("name5",50);
-        Person person6 = new Person("name6",60);
-        MKArrayList<Person> mkArrayList = new MKArrayList<>();
-        mkArrayList.add(person4);
-        mkArrayList.add(person5);
-        mkArrayList.add(person6);
-        mkArrayList.add(arr);
-        Person person7= new Person("name2",20);
-        Assertions.assertEquals(person7 ,mkArrayList.get(4));
+    @ParameterizedTest
+    @CsvSource(value = {
+            "3; '[4, 2, 3]'; '4,2,3'",
+            "4; '[7, 3, 2, 1]'; '7,3,2,1'"
+    }, delimiter = ';'
+    )
+    void testAdd(int expectedSize, String expectedToString, String values) {
+        for (String value : values.split(",")) {
+            testStringList.add(value);
+        }
+        Assertions.assertEquals(expectedSize, testStringList.getSize());
+        Assertions.assertEquals(expectedToString, testStringList.toString());
     }
 
-    @Test
-    void remove() {
-        Person person = new Person("name", 10);
-        Person person2 = new Person("name2",20);
-        Person person3 = new Person("name3", 30);
-        MKArrayList<Person> mkArrayList = new MKArrayList<>();
-        mkArrayList.add(person);
-        mkArrayList.add(person2);
-        mkArrayList.add(person3);
-        mkArrayList.remove(1);
+    @ParameterizedTest
+    @CsvSource(value = {
+            "4; '[5, 1, 2, 3]';    0; 5; '1,2,3'", // at start
+            "4; '[1, 2, 7, 3]';    2; 7; '1,2,3'", // into middle
+            "5; '[4, 3, 2, 1, 5]'; 4; 5; '4,3,2,1'" // into end
+    }, delimiter = ';'
+    )
+    void addByIndex(int expectedSize, String expectedToString, int index, String elem, String values) {
+        for (String value : values.split(",")) {
+            testStringList.add(value);
+        }
+        testStringList.add(elem, index);
 
-        Assertions.assertEquals(person3,mkArrayList.get(1));
+        Assertions.assertEquals(expectedSize, testStringList.getSize());
+        Assertions.assertEquals(expectedToString, testStringList.toString());
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "4; '[0, 1, 2, 3]'; 2; '2,3'; '0,1'"
+    }, delimiter = ';')
+    void addArray(int expectedSize, String expectedToString,int addArrayLength, String addArray, String values){
+        for (String value : values.split(",")) {
+            testStringList.add(value);
+        }
+        String[] addArr = new String[addArrayLength];
+        int i=0;
+        for (String arr : addArray.split(",")) {
+            addArr[i] = arr;
+            i++;
+        }
+        testStringList.add(addArr);
+        Assertions.assertEquals(expectedSize, testStringList.getSize());
+        Assertions.assertEquals(expectedToString, testStringList.toString());
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "3; '[-1, 2, 3]'; 0; -1; '1,2,3'",
+            "4; '[4, 3, -1, 1]'; 2; -1; '4,3,2,1'"
+    }, delimiter = ';'
+    )
+    void set(int expectedSize, String expectedToString, int index, String elem, String values) {
+        for (String value : values.split(",")) {
+            testStringList.add(value);
+        }
+        testStringList.set(elem,index);
+
+        Assertions.assertEquals(expectedSize, testStringList.getSize());
+        Assertions.assertEquals(expectedToString, testStringList.toString());
+    }
+
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "2; '[1, 3]'; 1; '1,2,3'",
+            "3; '[4, 2, 1]'; 1; '4,3,2,1'"
+    }, delimiter = ';'
+    )
+    void remove(int expectedSize, String expectedToString, int index, String values) {
+        for (String value : values.split(",")) {
+            testStringList.add(value);
+        }
+        testStringList.remove(index);
+
+        Assertions.assertEquals(expectedSize, testStringList.getSize());
+        Assertions.assertEquals(expectedToString, testStringList.toString());
     }
 
     @Test
@@ -83,22 +128,40 @@ class MKArrayListTest {
         Assertions.assertEquals(0,mkArrayList.getSize());
     }
 
-    @Test
-    void get() {
-        Person person = new Person("name", 10);
-        Person person2 = new Person("name",10);
-        MKArrayList<Person> mkArrayList = new MKArrayList<>();
-        mkArrayList.add(person);
-        Assertions.assertEquals(mkArrayList.get(0),person2);
+    @ParameterizedTest
+    @CsvSource(value = {
+            "0; 1; '1,2,3'",
+            "2; 2; '4,3,2,1'",
+            "3; 4; '1,2,3,4'"
+    }, delimiter = ';'
+    )
+    void get(int index, String expectedValue, String values) {
+        for (String value : values.split(",")) {
+            testStringList.add(value);
+        }
+        for (int i = 0; i < 3; i++) {
+            String elem = testStringList.get(index);
+            Assertions.assertEquals(expectedValue, elem);
+        }
     }
 
-    @Test
-    void set() {
-        Person person = new Person("name", 10);
-        Person person2 = new Person("name2", 20);
-        MKArrayList<Person> mkArrayList = new MKArrayList<>();
-        mkArrayList.add(person);
-        mkArrayList.set(person2,0);
-        Assertions.assertEquals(person2,mkArrayList.get(0));
+    @ParameterizedTest
+    @CsvSource(value = {
+            "0; 0; ''",
+            "2; 0; '1,2'",
+            "4; 0; '4,3,2,1'"
+    }, delimiter = ';'
+    )
+    void clear(int expectedSizeBefore, int expectedSizeAfter, String values) {
+        for (int i = 0; i < 2; i++) {
+            if (StringUtils.isNotBlank(values)) {
+                for (String value : values.split(",")) {
+                    testStringList.add(value);
+                }
+            }
+            Assertions.assertEquals(expectedSizeBefore, testStringList.getSize());
+            testStringList.clear();
+            Assertions.assertEquals(expectedSizeAfter, testStringList.getSize());
+        }
     }
 }

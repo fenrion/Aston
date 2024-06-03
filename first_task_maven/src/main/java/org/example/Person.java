@@ -6,7 +6,7 @@ import java.util.Objects;
  * class for test MKArrayList
  */
 
-public class Person {
+public class Person implements Comparable<Person>{
     String name;
     int age;
 
@@ -39,4 +39,15 @@ public class Person {
                 ", age=" + age +
                 '}';
     }
+
+    /**
+     * impl Comparable interface for Person.class
+     * @param person the object to be compared.
+     * @return
+     */
+    @Override
+    public int compareTo(Person person) {
+        return Integer.compare(this.age,person.getAge());
+    }
 }
+
