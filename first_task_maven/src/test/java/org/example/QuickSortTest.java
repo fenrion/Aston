@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Comparator;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 class QuickSortTest {
     private MKArrayList<Person> testPersons;
